@@ -1,0 +1,13 @@
+<div class='card-container'>
+  <div class='flippable-card' [ngClass]="{'flipped':flipped}">
+
+    <mat-card class="custom-card front">
+      <mat-card-header>
+        <img mat-card-avatar [src]="place.icon">
+        <mat-card-title>{{ place.name }}</mat-card-title>
+        <mat-card-subtitle>Rating: {{ !place.rating ? 'N/A' : place.rating }}</mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+
+  </div>
+</div>

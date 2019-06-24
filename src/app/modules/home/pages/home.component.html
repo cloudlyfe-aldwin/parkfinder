@@ -1,0 +1,27 @@
+<div id="content">
+  <div class="form-group">
+    <input placeholder="Find parks near" autocorrect="off" type="text" class="form-control" ref-search
+      [formControl]="searchInput">
+  </div>
+
+  <div id="map-container">
+    <agm-map ref-map [latitude]="lat" [longitude]="lng" [zoom]="zoom" (mapReady)="mapReady($event)"
+      (idle)="updateMap()">
+      <agm-marker *ngFor="let place of places$ | async" [latitude]="place.location.lat"
+        [longitude]="place.location.lng" (markerClick)="markerClick($event)">
+
+        <agm-info-window>
+          <strong>{{place.name}}</strong>
+        </agm-info-window>
+
+      </agm-marker>
+    </agm-map>
+  </div>
+
+  <app-spinner [isLoading]='isLoading' message='Loading...'></app-spinner>
+  <ngx-masonry [useImagesLoaded]="true" [options]="{ transitionDuration: '0.8s' }">
+    <ngxMasonryItem class="masonry-item" *ngFor="let place of places$ | async">
+      <app-place-card [place]="place"></app-place-card>
+    </ngxMasonryItem>
+  </ngx-masonry>
+</div>
