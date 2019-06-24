@@ -21,11 +21,11 @@ export class HomeComponent implements OnInit {
 
   public mapElement: google.maps.Map;
 
-  public places$: Observable<Place[]>;
+  public places: Place[];
   private placesSubject: Subject<google.maps.places.PlaceResult[]>;
   public lat = 36.8502966;
   public lng = -76.277563;
-  public zoom = 12;
+  public zoom = 10;
 
   public isLoading = false;
   public selectedPlace: string;
@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.placesSubject = new Subject<google.maps.places.PlaceResult[]>();
-    this.places$ = this.placesSubject.asObservable().pipe(
+    this.placesSubject.asObservable().pipe(
       map(x => x.map(y => new Place({
         id: y.id,
         name: y.name,
@@ -50,7 +50,8 @@ export class HomeComponent implements OnInit {
         icon: y.icon
       })
       ))
-    );
+    ).subscribe(x => this.ngZone.run(() =>
+      this.places = x));
 
     // create search FormControl
     this.searchInput = new FormControl();
@@ -59,9 +60,10 @@ export class HomeComponent implements OnInit {
 
     // load Places Autocomplete
     this.mapsAPILoader.load().then(() => {
-      const autocomplete = new google.maps.places.Autocomplete(this.searchElement.nativeElement, {
-        types: ['address']
-      });
+      const autocomplete = new google.maps.places.Autocomplete(
+        this.searchElement.nativeElement, {
+          types: ['address']
+        });
       autocomplete.addListener('place_changed', () => {
         this.ngZone.run(() => {
           // get the place result
@@ -86,29 +88,27 @@ export class HomeComponent implements OnInit {
   }
 
   public updateMap() {
+    if (this.isLoading) return;
+    this.isLoading = true;
     const latLng = this.mapElement.getCenter();
     this.lat = latLng.lat();
     this.lng = latLng.lng();
 
     const parks = new google.maps.places.PlacesService(this.mapElement);
 
-    this.isLoading = true;
     parks.nearbySearch({
       location: new google.maps.LatLng(this.lat, this.lng),
-      rankBy: google.maps.places.RankBy.DISTANCE,
+      radius: 50000,
       type: 'park'
     }, (results, status, page) => {
-      this.ngZone.run(() => {
-        if (status !== google.maps.places.PlacesServiceStatus.OK) {
-          this.isLoading = false;
-          return;
-        }
-
-        this.placesSubject.next(results);
+      if (status !== google.maps.places.PlacesServiceStatus.OK) {
         this.isLoading = false;
-      });
-    });
+        return;
+      }
 
+      this.isLoading = false;
+      this.placesSubject.next(results);
+    });
   }
 
   private setCurrentPosition() {

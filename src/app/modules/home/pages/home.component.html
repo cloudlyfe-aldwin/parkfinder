@@ -7,7 +7,7 @@
   <div id="map-container">
     <agm-map ref-map [latitude]="lat" [longitude]="lng" [zoom]="zoom" (mapReady)="mapReady($event)"
       (idle)="updateMap()">
-      <agm-marker *ngFor="let place of places$ | async" [latitude]="place.location.lat"
+      <agm-marker *ngFor="let place of places" [latitude]="place.location.lat"
         [longitude]="place.location.lng">
 
         <agm-info-window>
@@ -20,7 +20,7 @@
 
   <app-spinner [isLoading]='isLoading' message='Loading...'></app-spinner>
   <ngx-masonry [useImagesLoaded]="true" [options]="{ transitionDuration: '0.8s' }">
-    <ngxMasonryItem class="masonry-item" *ngFor="let place of places$ | async">
+    <ngxMasonryItem class="masonry-item" *ngFor="let place of places">
       <app-place-card [place]="place"></app-place-card>
     </ngxMasonryItem>
   </ngx-masonry>
