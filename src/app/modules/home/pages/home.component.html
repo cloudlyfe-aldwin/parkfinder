@@ -8,7 +8,7 @@
     <agm-map ref-map [latitude]="lat" [longitude]="lng" [zoom]="zoom" (mapReady)="mapReady($event)"
       (idle)="updateMap()">
       <agm-marker *ngFor="let place of places$ | async" [latitude]="place.location.lat"
-        [longitude]="place.location.lng" (markerClick)="markerClick($event)">
+        [longitude]="place.location.lng">
 
         <agm-info-window>
           <strong>{{place.name}}</strong>

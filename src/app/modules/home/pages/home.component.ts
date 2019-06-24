@@ -38,8 +38,6 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.placesSubject = new Subject<google.maps.places.PlaceResult[]>();
     this.places$ = this.placesSubject.asObservable().pipe(
-      throttle(val => interval(20)),
-
       map(x => x.map(y => new Place({
         id: y.id,
         name: y.name,
@@ -91,25 +89,26 @@ export class HomeComponent implements OnInit {
     const latLng = this.mapElement.getCenter();
     this.lat = latLng.lat();
     this.lng = latLng.lng();
-    this.locateParks();
-  }
 
-  private locateParks() {
     const parks = new google.maps.places.PlacesService(this.mapElement);
+
     this.isLoading = true;
     parks.nearbySearch({
       location: new google.maps.LatLng(this.lat, this.lng),
       rankBy: google.maps.places.RankBy.DISTANCE,
       type: 'park'
     }, (results, status, page) => {
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        this.isLoading = false;
-        return;
-      }
+      this.ngZone.run(() => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK) {
+          this.isLoading = false;
+          return;
+        }
 
-      this.placesSubject.next(results);
-      this.isLoading = false;
+        this.placesSubject.next(results);
+        this.isLoading = false;
+      });
     });
+
   }
 
   private setCurrentPosition() {
