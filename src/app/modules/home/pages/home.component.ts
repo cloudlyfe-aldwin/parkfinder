@@ -51,7 +51,7 @@ export class HomeComponent implements OnInit {
       })
       ))
     ).subscribe(x => this.ngZone.run(() =>
-      this.places = x));
+      this.places = x.sort((y, z) => y.name > z.name ? 1 : -1)));
 
     // create search FormControl
     this.searchInput = new FormControl();
